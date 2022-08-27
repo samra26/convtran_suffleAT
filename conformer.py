@@ -744,7 +744,7 @@ class Decoder(nn.Module):
         self.up2= nn.ConvTranspose2d(1, 1, kernel_size=4, stride=2, padding=1) 
         self.up21= nn.ConvTranspose2d(2, 1, kernel_size=4, stride=2, padding=1) 
         self.act=nn.Sigmoid()
-        self.ca=ShuffleChannelAttention(channel=100,reduction=16,kernel_size=3)
+        self.ca=ShuffleChannelAttention(channel=64,reduction=16,kernel_size=3)
         
         
         
