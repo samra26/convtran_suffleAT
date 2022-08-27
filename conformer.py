@@ -706,6 +706,36 @@ class GDELayer(nn.Module):
         #print('gde',rgb_h.shape,rgb_m.shape,depth_h.shape,depth_m.shape)     
         return rgb_h,rgb_m,depth_h,depth_m,rgb_l,depth_l
 
+class ShuffleChannelAttention(nn.Module):
+    def __init__(self, channel=512,reduction=16,kernel_size=3):
+        super(ShuffleChannelAttention, self).__init__()
+        self.maxpool=nn.AdaptiveMaxPool2d(1)
+        self.avgpool=nn.AdaptiveAvgPool2d(1)
+        self.se=nn.Sequential(
+            nn.Conv2d(channel,channel//reduction,1,padding=1,bias=False),
+            nn.ReLU(),
+            nn.Conv2d(channel//reduction,channel,3,bias=False)
+        )
+        self.sigmoid=nn.Sigmoid()
+        
+    
+    def forward(self, x) :
+        b,c,h,w=x.shape
+        residual=x
+        max_result=self.maxpool(x)
+        print('max',max_result.shape)
+        GAP_reshape=max_result.view(-1,256,1,1)
+        print('gap',GAP_reshape.shape)
+        GAP_reshape_T=GAP_reshape.transpose(1,0)
+        print('trans gap',GAP_reshape_T.shape)
+        max_out=self.se(GAP_reshape_T)
+        print('se',max_out.shape)
+        output1=self.sigmoid(max_out)
+        output1=output1.view(b,c,1,1)
+        output2=self.sigmoid(max_result)
+        output=output1+output2
+        return (output*x)+residual
+    
 class Decoder(nn.Module):
     def __init__(self):
         super(Decoder, self).__init__()
@@ -714,22 +744,36 @@ class Decoder(nn.Module):
         self.up2= nn.ConvTranspose2d(1, 1, kernel_size=4, stride=2, padding=1) 
         self.up21= nn.ConvTranspose2d(2, 1, kernel_size=4, stride=2, padding=1) 
         self.act=nn.Sigmoid()
+        self.ca=ShuffleChannelAttention(channel=100,reduction=16,kernel_size=3)
         
         
         
     def forward(self, rgb_e,depth_e ,rgb_h,rgb_m,depth_h,depth_m,rgb_l,depth_l):
+
         sal_high=rgb_h+depth_h
         sal_med=rgb_m+depth_m
         sal_low=rgb_l+depth_l
        
         rgb_lde0=self.upsample(rgb_e[0])
         depth_lde0=self.upsample1(depth_e[0][:, 1:].transpose(1, 2).unflatten(2,(20,20)))
+        print('rgb_lde0',rgb_lde0.shape)
+        rgb_lde0=self.ca(rgb_lde0)
+        print('rgb_lde0',rgb_lde0.shape)
+        depth_lde0=self.ca(depth_lde0)
 
         rgb_lde1=self.upsample(rgb_e[1])
         depth_lde1=self.upsample1(depth_e[1][:, 1:].transpose(1, 2).unflatten(2,(20,20)))
-
+        print('rgb_lde1',rgb_lde1.shape)
+        rgb_lde1=self.ca(rgb_lde1)
+        print('rgb_lde1',rgb_lde1.shape)
+        depth_lde1=self.ca(depth_lde1)
+        
         rgb_lde2=self.upsample(rgb_e[2])
         depth_lde2=self.upsample1(depth_e[2][:, 1:].transpose(1, 2).unflatten(2,(20,20)))
+        print('rgb_lde2',rgb_lde2.shape)
+        rgb_lde2=self.ca(rgb_lde2)
+        print('rgb_lde2',rgb_lde2.shape)
+        depth_lde2=self.ca(depth_lde2)
         
         edge_rgbd0=self.act(self.up2(self.up21(torch.cat(((rgb_lde0+depth_lde0),(rgb_lde0*depth_lde0)),dim=1))))
         edge_rgbd1=self.act(self.up2(self.up21(torch.cat(((rgb_lde1+depth_lde1),(rgb_lde1*depth_lde1)),dim=1))))
