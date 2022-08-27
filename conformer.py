@@ -723,13 +723,13 @@ class ShuffleChannelAttention(nn.Module):
         b,c,h,w=x.shape
         residual=x
         max_result=self.maxpool(x)
-        print('max',max_result.shape)
+        #print('max',max_result.shape)
         GAP_reshape=max_result.view(-1,c//16,1,1)
-        print('gap',GAP_reshape.shape)
+        #print('gap',GAP_reshape.shape)
         GAP_reshape_T=GAP_reshape.transpose(1,0)
-        print('trans gap',GAP_reshape_T.shape)
+        #print('trans gap',GAP_reshape_T.shape)
         max_out=self.se(GAP_reshape_T)
-        print('se',max_out.shape)
+        #print('se',max_out.shape)
         output1=self.sigmoid(max_out)
         output1=output1.view(b,c,1,1)
         output2=self.sigmoid(max_result)
@@ -755,28 +755,28 @@ class Decoder(nn.Module):
         sal_low=rgb_l+depth_l
        
 
-        print('rgb_lde0',rgb_e[0].shape)
+        #print('rgb_lde0',rgb_e[0].shape)
         rgb_lde0=self.ca(rgb_e[0])
-        print('rgb_lde0',rgb_lde0.shape)
+        #print('rgb_lde0',rgb_lde0.shape)
         depth_lde0=depth_e[0][:, 1:].transpose(1, 2).unflatten(2,(20,20))
-        print('depth_lde0',depth_lde0.shape)
+        #print('depth_lde0',depth_lde0.shape)
         depth_lde0=self.ca(depth_lde0)
         rgb_lde0=self.upsample(rgb_lde0)
         depth_lde0=self.upsample1(depth_lde0)
         
 
-        print('rgb_lde1',rgb_e[1].shape)
+        #print('rgb_lde1',rgb_e[1].shape)
         rgb_lde1=self.ca(rgb_e[1])
-        print('rgb_lde1',rgb_lde1.shape)
+        #print('rgb_lde1',rgb_lde1.shape)
         depth_lde1=depth_e[1][:, 1:].transpose(1, 2).unflatten(2,(20,20))
         depth_lde1=self.ca(depth_lde1)
         rgb_lde1=self.upsample(rgb_lde1)
         depth_lde1=self.upsample1(depth_lde1)
         
 
-        print('rgb_lde2',rgb_e[2].shape)
+        #print('rgb_lde2',rgb_e[2].shape)
         rgb_lde2=self.ca(rgb_e[2])
-        print('rgb_lde2',rgb_lde2.shape)
+        #print('rgb_lde2',rgb_lde2.shape)
         depth_lde2=depth_e[2][:, 1:].transpose(1, 2).unflatten(2,(20,20))
         depth_lde2=self.ca(depth_lde2)
         rgb_lde2=self.upsample(rgb_lde2)
