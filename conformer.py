@@ -724,7 +724,7 @@ class ShuffleChannelAttention(nn.Module):
         residual=x
         max_result=self.maxpool(x)
         print('max',max_result.shape)
-        GAP_reshape=max_result.view(-1,256,1,1)
+        GAP_reshape=max_result.view(-1,c//4,1,1)
         print('gap',GAP_reshape.shape)
         GAP_reshape_T=GAP_reshape.transpose(1,0)
         print('trans gap',GAP_reshape_T.shape)
