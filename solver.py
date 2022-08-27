@@ -170,8 +170,8 @@ class Solver(object):
                 self.optimizer.step()
 
                 if (i + 1) % (self.show_every // self.config.batch_size) == 0:
-                    print('epoch: [%2d/%2d], iter: [%5d/%5d]  ||  Sal : %0.4f  ||sal_final:%0.4f|| edge_loss:%0.4f|| r:%0.4f||d:%0.4f' % (
-                        epoch, self.config.epoch, i + 1, iter_num, r_sal_loss,sal_final_loss,edge_loss_rgbd2,sal_loss_coarse_rgb,sal_loss_coarse_depth ))
+                    print('epoch: [%2d/%2d], iter: [%5d/%5d]  ||  Sal : %0.4f  ||sal_final:%0.4f|| edge_loss0:%0.4f|| edge_loss1:%0.4f||  edge_loss2:%0.4f||  r:%0.4f||d:%0.4f' % (
+                        epoch, self.config.epoch, i + 1, iter_num, r_sal_loss,sal_final_loss,edge_loss_rgbd0,edge_loss_rgbd1,edge_loss_rgbd2,sal_loss_coarse_rgb,sal_loss_coarse_depth ))
                     # print('Learning rate: ' + str(self.lr))
                     writer.add_scalar('training loss', r_sal_loss / (self.show_every / self.iter_size),
                                       epoch * len(self.train_loader.dataset) + i)
