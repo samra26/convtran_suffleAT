@@ -707,7 +707,7 @@ class GDELayer(nn.Module):
         return rgb_h,rgb_m,depth_h,depth_m,rgb_l,depth_l
 
 class ShuffleChannelAttention(nn.Module):
-    def __init__(self, channel=512,reduction=16,kernel_size=3):
+    def __init__(self, channel=64,reduction=16,kernel_size=3):
         super(ShuffleChannelAttention, self).__init__()
         self.maxpool=nn.AdaptiveMaxPool2d(1)
         self.avgpool=nn.AdaptiveAvgPool2d(1)
@@ -724,7 +724,7 @@ class ShuffleChannelAttention(nn.Module):
         residual=x
         max_result=self.maxpool(x)
         print('max',max_result.shape)
-        GAP_reshape=max_result.view(-1,c//4,1,1)
+        GAP_reshape=max_result.view(-1,c//16,1,1)
         print('gap',GAP_reshape.shape)
         GAP_reshape_T=GAP_reshape.transpose(1,0)
         print('trans gap',GAP_reshape_T.shape)
